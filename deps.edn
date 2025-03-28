@@ -1,0 +1,10 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.0"}
+        org.clojure/core.async {:git/url "https://github.com/clojure/core.async.git"
+                                :sha "7cc715ac25b4a0f232a7fe1049f90f14ef10fd96"}
+        metosin/reitit            {:mvn/version "0.5.18"}
+        http-kit/http-kit         {:mvn/version "2.7.0"}
+        com.cognitect/transit-clj {:mvn/version "1.0.329"}
+        org.clojure/data.json     {:mvn/version "2.4.0"}
+        ring/ring-core            {:mvn/version "1.14.0"}
+        ring/ring-defaults        {:mvn/version "0.6.0"}}}
