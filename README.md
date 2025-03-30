@@ -1,12 +1,12 @@
 # Flow Monitor
 
-A real-time monitoring and interaction tool for [clojure.core.async.flows](https://clojure.github.io/core.async/flow.html)
+A real-time monitoring and interaction tool for [clojure.core.async.flow](https://clojure.github.io/core.async/flow.html)
 
-<img width="2189" alt="flow-example-gif" src="https://github.com/user-attachments/assets/9261877d-c067-4141-8730-d6633793cf0b">
+<img width="2189" alt="flow-example-gif" src="https://github.com/user-attachments/assets/ddef50e1-ccb0-43cb-8dd2-f52b9e69bb55">
 
 ## Overview
 
-Flow Monitor provides a web-based interface for visualizing, monitoring, and interacting with clojure.core.async.flows
+Flow Monitor provides a web-based interface for visualizing, monitoring, and interacting with clojure.core.async.flow
 
 With Flow Monitor, you can observe the structure of your flow, track the state of processes and the async channels between them, control process execution by pausing and resuming them, inject data into channels, and view any errors or messages that emerge from the flow.
 
