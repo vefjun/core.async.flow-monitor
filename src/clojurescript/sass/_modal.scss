@@ -1,0 +1,111 @@
+@use 'colors' as *;
+
+.modal-overlay {
+  background-color: $light-1;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.75s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: -100;
+  &.centered {
+    text-align: center;
+  }
+  .modal {
+    background: $light-8;
+    color: $color-2;
+    box-shadow: 0 4px 12px $light-9;
+    border-radius: 5px;
+    max-width: 1200px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    height: 80%;
+    .modal-header {
+      text-align: right;
+      #close-button {
+        font-size: 28px;
+        margin-right: 10px;
+      }
+    }
+    .modal-header {
+      border-bottom: 1px solid $color-1;
+      margin-top: 0.5em;
+      flex: 0 0 auto;
+      margin-bottom: -45px;
+      #modal-title {
+        font-size: 2em;
+        text-align: left;
+        margin-left: 15px;
+      }
+      #close-button {
+        float: right;
+        top: -1.2em;
+        position: relative;
+        &:hover {
+          cursor: pointer;
+        }
+      }
+    }
+    .modal-body {
+      text-align: left;
+      font-size: 20px;
+      margin: 1em 15px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      a {
+        color: $color-2;
+        text-decoration: none;
+        transition: 0.5s;
+        &:hover {
+          color: lighten($color-2, 20%);
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  &.is-visible {
+    opacity: 0.99;
+    transform: scale(1);
+    z-index: 800;
+  }
+}
+
+.inject-btn-container {
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.inject-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  width: 100%;
+}
+
+.inject-button {
+  padding: 12px 16px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#input-body-wrapper {
+  height: 80%;
+  .CodeMirror {
+    height: 100%;
+  }
+}
