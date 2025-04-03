@@ -1,6 +1,6 @@
 (ns clojurescript.flow-monitor-ui.routes.index.view
   (:require [goog.string :as gstring]
-            [cljs.pprint :refer [pprint]]
+            [cljs.pprint :as pprint]
             [clojure.string :as str]
             [reagent.core :as r]
             [clojurescript.flow-monitor-ui.components.modal :as component]
@@ -174,8 +174,23 @@
       (str/replace #"<" "&lt;")
       (str/replace #">" "&gt;")))
 
-(defn data->string [data]
-  (with-out-str (pprint data)))
+(defn fmt-state
+  [data]
+  (letfn [(format-map [m indent-level]
+            (if (empty? m)
+              "{}"
+              (let [indent (str/join (repeat indent-level "  "))
+                    inner-indent (str indent "  ")
+                    pairs (for [[k v] m]
+                            (str inner-indent (pr-str k) " "
+                                 (if (map? v)
+                                   (format-map v (+ indent-level 1))
+                                   (pr-str v))))
+                    formatted (str "{\n" (str/join ",\n" pairs) "\n" indent "}")]
+                formatted)))]
+    (if (map? data)
+      (format-map data 0)
+      (pr-str data))))
 
 (defn seconds-since [^js/Date t]
   (let [now (js/Date.)
@@ -196,7 +211,8 @@
                            (send-socket-data {:action :pause-proc :pid proc})
                            (send-socket-data {:action :resume-proc :pid proc})))}]]
      [:div.title-container [:h2.title (titleize-keyword proc)]]
-     (when (:state proc-stats) [:div.state [:pre.code-block [:code (escape-html (data->string (:state proc-stats)))]]])
+     (when (:state proc-stats)
+       [:div.state [:pre.code-block [:code (fmt-state (:state proc-stats))]]])
      [:div.call-count (format-number (:count proc-stats))]
      [:div.action-buttons
       [:div.action-button

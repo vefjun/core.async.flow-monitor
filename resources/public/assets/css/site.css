@@ -1166,6 +1166,13 @@ body.modal-open {
   overflow: hidden;
 }
 
+.stale {
+  color: #E12D39;
+  margin-top: 8px;
+  text-align: center;
+  width: 100%;
+}
+
 .row {
   display: flex;
   flex-direction: row;
