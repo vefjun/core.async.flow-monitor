@@ -619,6 +619,9 @@ body.modal-open {
     //font-family: monospace;
     white-space: pre;
     line-height: 1.3;
+    overflow-x: auto;
+    overflow-y: auto;
+    scrollbar-width: auto;
   }
 }
 
