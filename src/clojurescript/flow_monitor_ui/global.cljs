@@ -1,5 +1,6 @@
 (ns clojurescript.flow-monitor-ui.global
   (:require
+    [goog.userAgent.product :as product]
     [reagent.core :as r]
     [re-frame.core :as rf]
     [cognitect.transit :as t]
@@ -46,7 +47,6 @@
       (set! (.-id last-leader-line) id)
       last-leader-line)))
 
-
 (defn draw []
   (doall (for [proc (-> @global-state :data :conns)]
            (do
@@ -90,6 +90,7 @@
                                                                                  :endSocket "top"
                                                                                  :path "grid" #_"grid" #_"straight"
                                                                                  :hide true
+                                                                                 :endPlug (if product/FIREFOX "behind" "arrow1")
                                                                                  :animOptions (clj->js {:duration 1000 :timing "ease"})
                                                                                  :startLabel (js/LeaderLine.captionLabel "0/10" (clj->js {:color "#52606D" :outlineColor "#CBD2D9"}))
                                                                                  ; TODO Conditional upon unique chan id
