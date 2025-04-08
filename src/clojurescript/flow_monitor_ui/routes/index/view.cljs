@@ -200,16 +200,9 @@
 (defn proc-card [proc proc-stats]
   (let [errors (-> @global-state :errors proc)
         last-updated (:last-updated (proc (:flow-ping @global-pings)))
-        since-last-updated (if last-updated (seconds-since last-updated) 0)]
+        since-last-updated (if last-updated (seconds-since last-updated) 0)
+        paused? (= :paused (:status proc-stats))]
     [:div.middle-section-one-container
-     [:div.status-icon
-      [:img {:src (if (= :running (:status proc-stats))
-                    "assets/img/play_icon_green_1.svg"
-                    "assets/img/pause_icon_orange.svg")
-             :on-click (fn [e]
-                         (if (= :running (:status proc-stats))
-                           (send-socket-data {:action :pause-proc :pid proc})
-                           (send-socket-data {:action :resume-proc :pid proc})))}]]
      [:div.title-container [:h2.title (titleize-keyword proc)]]
      (when (:state proc-stats)
        [:div.state [:pre.code-block [:code (fmt-state (:state proc-stats))]]])
@@ -224,19 +217,18 @@
        [:img {:src "assets/img/inject_icon.svg"}]]
       [:div.action-button
        {:on-click (fn [evt]
-                    (swap! global-state assoc :active-tab :messages)
-                    (swap! global-state assoc :active-proc-pid proc)
-                    (.add (.-classList (.-body js/document)) "modal-open")
-                    (>dis [::component/set-modal-visibility true]))}
-       [:img {:src "assets/img/message_icon.svg"}]]
-      [:div.action-button
-       {:on-click (fn [evt]
                     (swap! global-state assoc :active-tab :errors)
                     (swap! global-state assoc :active-proc-pid proc)
                     (.add (.-classList (.-body js/document)) "modal-open")
                     (>dis [::component/set-modal-visibility true]))}
        [:img {:src (if (-> errors count zero? not) "assets/img/error_icon_red.svg" "assets/img/error_icon.svg")}]
-       (when (-> errors count zero? not) [:div {:style {:margin-left "5px" :color "#E12D39" :padding-right "5px"}} (count errors)])]]
+       (when (-> errors count zero? not) [:div {:style {:margin-left "5px" :color "#E12D39" :padding-right "5px"}} (count errors)])]
+      [:div.action-button
+       {:on-click (fn [e]
+                    (if (= :running (:status proc-stats))
+                      (send-socket-data {:action :pause-proc :pid proc})
+                      (send-socket-data {:action :resume-proc :pid proc})))}
+       [:img {:src (if paused? "assets/img/pause_icon_orange.svg" "assets/img/pause_icon_white.svg")}]]]
      (when (> since-last-updated 0) [:div.stale "Last Updated: " since-last-updated " seconds ago."])]))
 
 (defn buffer-usage-percentage [buffer-count buffer-capacity]
@@ -306,7 +298,8 @@
           expanded? (get @proc-card-state proc)
           proc-stats (-> proc-map vals first)
           ins (:ins proc-stats)
-          outs (:outs proc-stats)]
+          outs (:outs proc-stats)
+          paused? (= :paused (:status proc-stats))]
       (update-arrows proc ins outs)
       [:div.card-container {:id (name proc)
                             :class (when (= :line @chan-representation) "line-chan-style")}
@@ -316,7 +309,10 @@
                         :when (-> in second :buffer :type)]
                     (let [in-name (first in)]
                       ^{:key in-name} [meter-card proc in])))]
-       [:div.proc-card {:class (if expanded? "expanded" "collapsed")}
+       [:div.proc-card {:class (str (if expanded? "expanded" "collapsed"))}
+        (if paused?
+          [:div.dot-pattern.animate__animated.animate__fadeIn]
+          [:div.dot-pattern.animate__animated.animate__fadeOut])
         [:div.chevron-icon
          {:on-click (fn [e]
                       (swap! proc-card-state update proc not)

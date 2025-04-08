@@ -1358,7 +1358,7 @@ body.modal-open {
   margin-top: 10px;
 }
 .card-container .proc-card .expanded-view .action-buttons .action-button {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(103.8952879581, 121.6335078534, 138.1047120419);
   border-radius: 4px;
   min-width: 40px;
   height: 30px;
@@ -1367,9 +1367,10 @@ body.modal-open {
   justify-content: center;
   cursor: pointer;
   transition: background 0.2s;
+  z-index: 10;
 }
 .card-container .proc-card .expanded-view .action-buttons .action-button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(116.609947644, 134.3848167539, 150.890052356);
 }
 .card-container .proc-card .expanded-view .action-buttons .action-button img {
   width: 20px;
@@ -1760,6 +1761,18 @@ body.modal-open {
   position: absolute;
   right: 5px;
   top: 2px;
+}
+
+.dot-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(127, 127, 127, 0.5) radial-gradient(black 33%, transparent 33%);
+  background-size: 3px 3px;
+  pointer-events: none;
+  z-index: 5;
 }
 
 /*# sourceMappingURL=site.css.map */

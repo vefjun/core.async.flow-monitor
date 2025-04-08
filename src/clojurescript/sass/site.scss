@@ -1,5 +1,6 @@
 @use 'normalize';
 @use 'colors' as *;
+@use "sass:color";
 @use 'modal';
 @use 'nav';
 @use 'code_mirror';
@@ -144,6 +145,7 @@ body.modal-open {
         opacity: 0;
         visibility: hidden;
       }
+
     }
 
     &.collapsed {
@@ -254,7 +256,7 @@ body.modal-open {
         margin-top: 10px;
 
         .action-button {
-          background: rgba(255, 255, 255, 0.1);
+          background: color.adjust($light-20, $lightness: 10%);
           border-radius: 4px;
           min-width: 40px;
           height: 30px;
@@ -263,9 +265,10 @@ body.modal-open {
           justify-content: center;
           cursor: pointer;
           transition: background 0.2s;
+          z-index: 10;
 
           &:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: color.adjust($light-20, $lightness: 15%);
           }
 
           img {
@@ -699,4 +702,16 @@ body.modal-open {
       top: 2px;
     }
   }
+}
+
+.dot-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(127, 127, 127, 0.5) radial-gradient(black 33%, transparent 33%);
+  background-size: 3px 3px;
+  pointer-events: none;
+  z-index: 5;
 }
