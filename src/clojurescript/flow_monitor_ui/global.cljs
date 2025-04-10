@@ -116,8 +116,21 @@
 (defn send-socket-data [data]
   (.send (:ws-chan @global-state) (.stringify js/JSON (t/write writer data))))
 
+(defn tagged-value? [^js v]
+  (try
+    (and (.-tag v) (.-rep v))
+    (catch :default _ false)))
+
+(defn transform-tagged-values [data]
+  (cond
+    (tagged-value? data) [(.-tag ^js data) (transform-tagged-values (.-rep ^js data))]
+    (map? data) (reduce-kv (fn [m k v] (assoc m k (transform-tagged-values v))) {} data)
+    (vector? data) (mapv transform-tagged-values data)
+    (set? data) (into #{} (map transform-tagged-values data))
+    :else data))
+
 (defn process-ws-message [msg]
-  (let [data (->> msg .-data (t/read reader))
+  (let [data (->> msg .-data (t/read reader) transform-tagged-values)
         action (:action data)]
     (case action
       :datafy (do

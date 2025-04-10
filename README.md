@@ -40,6 +40,38 @@ Add the following dependency to your project:
 ;; http://localhost:9876/index.html#/?port=9876
 ```
 
+## Custom Transit Handlers
+
+You can provide custom Transit write handlers to properly serialize types that aren't natively supported by Transit (used for visualizing state). These handlers should follow the format expected by cognitect.transit/writer :handlers. If not provided, the default handler will be used, which converts objects to strings.
+
+```clojure
+(:require
+  [clojure.core.async.flow-monitor :as monitor]
+  [clojure.core.async.flow :as flow]
+  [cognitect.transit :as transit]
+  [java.time :as time])
+(:import
+  [java.time Instant ZoneId]
+  [java.time.format DateTimeFormatter])
+
+(def my-flow (flow/create-flow ...))
+
+(defn format-instant [instant]
+  (.format
+    (.withZone
+      (DateTimeFormatter/ofPattern "MMMM d, yyyy")
+      (ZoneId/systemDefault))
+    instant))
+
+(def instant-write-handler
+  (transit/write-handler "instant-long"
+                         (fn [instant] (format-instant instant))))
+
+(def server-state (monitor/start-server {:flow my-flow
+                                         :port 9876
+                                         :handlers {Instant instant-write-handler}}))
+```
+
 ### Stopping the Server
 
 ```clojure

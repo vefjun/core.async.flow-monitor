@@ -20,13 +20,16 @@
                     :loop-ping? false
                     :flow nil})
 
-(defn clj->transit-str [arg]
+(def default-write-handler (transit/write-handler "default" (fn [obj] (str obj))))
+
+(defn transit-str-writer [data user-handlers]
   (let [out (ByteArrayOutputStream. 4096)
-        writer (transit/writer out :json)]
-    (transit/write writer arg)
+        writer (transit/writer out :json {:handlers user-handlers
+                                          :default-handler default-write-handler})]
+    (transit/write writer data)
     (.toString out)))
 
-(defn transit-str->clj [arg]
+(defn transit-str-reader [arg]
   (let [arg-json (json/read-str arg)
         arg-bytes (.getBytes arg-json "UTF-8")
         in (ByteArrayInputStream. arg-bytes)
@@ -42,17 +45,17 @@
 
 (defn send-message [state message]
   (doall (for [channel (:channels @state)]
-           (httpkit/send! channel (clj->transit-str message)))))
+           (httpkit/send! channel (transit-str-writer message (:handlers @state))))))
 
 (defn loop-ping [state]
   (async/thread
     (loop [s state]
       (if (:loop-ping? @s)
-        (do (send-message state {:action :ping :data (reduce-kv
-                                                       (fn [res k v]
-                                                         (assoc res k (mainline-chan-meta v)))
-                                                       {}
-                                                       (flow/ping (:flow @state)))})
+        (do (send-message state {:action :ping :data (d/datafy (reduce-kv
+                                                                 (fn [res k v]
+                                                                   (assoc res k (mainline-chan-meta v)))
+                                                                 {}
+                                                                 (flow/ping (:flow @state))))})
             (Thread/sleep 1000)
             (recur s))
         (println "Ping loop stopped")))))
@@ -67,7 +70,7 @@
                 (swap! state assoc-in [:loop-ping?] true)
                 (loop-ping state))
      :on-receive (fn [ch data]
-                   (let [clj-data (transit-str->clj data)
+                   (let [clj-data (transit-str-reader data)
                          action (:action clj-data)]
                      (case action
                        :inject (flow/inject (:flow @state) (:target clj-data) (edn/read-string (:data clj-data)))
@@ -115,14 +118,17 @@
   - opts: A map with the following keys:
     - :flow (required) - The return value from clojure.core.async.flow/create-flow
     - :port (optional) - The port to run the server on (default: 9998)
+    - :handlers (optional) - A map of custom Transit write handlers to use when serializing state
+                             data to send to the frontend. These handlers should follow the format
+                             expected by cognitect.transit/writer :handlers
 
   Returns:
   An atom containing the server's state, and prints a local url where the frontend can be reached"
-  [{:keys [flow port] :or {port 9998}}]
+  [{:keys [flow port handlers] :or {port 9998}}]
   (let [state (atom default-state)
         error-chan (:clojure.datafy/obj (meta (:error (:chans (d/datafy flow)))))
         report-chan (:clojure.datafy/obj (meta (:report (:chans (d/datafy flow)))))]
-    (swap! state assoc :flow flow)
+    (swap! state assoc :flow flow :handlers handlers)
     (report-monitoring state report-chan error-chan)
     (let [server (httpkit/run-server (app state) {:port port
                                                   :max-body 100000000
